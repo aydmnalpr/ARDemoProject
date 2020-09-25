@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using Vuforia;
 
-public class GPSController : MonoBehaviour
+public class GPSController2 : MonoBehaviour
 {
-    public GameObject cameraCompass;
+    public GameObject markerCompass;
+    public TrackableBehaviour imageTarget;
     public static float heading = 0;
     
     private string message = "GPS is initialising...";
+    private string message2 = "";
 
     private float thisLat;
     private float thisLon;
@@ -16,12 +19,15 @@ public class GPSController : MonoBehaviour
     private void OnGUI()
     {
         GUI.skin.label.fontSize = 50;
-        //GUI.Label(new Rect(30,30,1000,1000), message );
+        GUI.Label(new Rect(130,110,1000,1000), message );
+        GUI.Label(new Rect(300,500,1000,1000), message2 );
+
     }
 
     
     void Start()
     {
+        
         StartCoroutine(StartGPS());
         
     }
@@ -39,9 +45,19 @@ public class GPSController : MonoBehaviour
                   "\nNow:" + rightNow.ToString("HH:mm:ss");
 
         heading = Input.compass.trueHeading;
-        cameraCompass.transform.localRotation = Quaternion.Euler(90, 0, heading );
+        //Quaternion directionToNorth = Quaternion.Euler(90, 0, heading );
+        Vector3 dir = (new Vector3(0,heading,0) - imageTarget.gameObject.transform.position).normalized;
+        float dirY = (new Vector3(0, heading, 0).y - imageTarget.gameObject.transform.rotation.y);
+        //Vector3 dir = (directionToNorth.eulerAngles - transform.rotation.eulerAngles).normalized;
+        //float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-        
+        message2 = $"{imageTarget.gameObject.transform.rotation.y}";
+        //markerCompass.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.up);
+        markerCompass.transform.localRotation = Quaternion.Euler(90, 0, dirY );
+        markerCompass.transform.position = imageTarget.gameObject.transform.position + new Vector3(0,2,0);
+
+
+
     }
 
 
@@ -73,13 +89,13 @@ public class GPSController : MonoBehaviour
         {
             Input.compass.enabled = true;
 
-            message = "Lat:" + Input.location.lastData.latitude +
-                      "\nLong:" + Input.location.lastData.longitude +
-                      "\nAlt:" + Input.location.lastData.altitude +
-                      "\nHoriz Acc:" + Input.location.lastData.horizontalAccuracy +
-                      "\nVert Acc:" + Input.location.lastData.verticalAccuracy +
-                      "\n======" +
-                      "\nHeading:" + Input.compass.trueHeading;
+            // message = "Lat:" + Input.location.lastData.latitude +
+            //           "\nLong:" + Input.location.lastData.longitude +
+            //           "\nAlt:" + Input.location.lastData.altitude +
+            //           "\nHoriz Acc:" + Input.location.lastData.horizontalAccuracy +
+            //           "\nVert Acc:" + Input.location.lastData.verticalAccuracy +
+            //           "\n======" +
+            //           "\nHeading:" + Input.compass.trueHeading;
         }
         
         //Input.location.Stop();
